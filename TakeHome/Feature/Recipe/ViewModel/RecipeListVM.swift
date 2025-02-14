@@ -17,17 +17,14 @@ class RecipeListVM: ObservableObject {
 
     init(apiService : RecipeAPIService) {
         self.apiService = apiService
-        getRecipes()
     }
 
-    func getRecipes() {
-        Task{
-           let result = await apiService.getRecipes()
-            DispatchQueue.main.async { [weak self] in
-                self?.recipeList = result.data ?? []
-                self?.errorMessage = result.data?.count ?? 0 <= 0 ? "Recipe List Empty!" : nil
-            }
-            
-        }
+    func getRecipes() async {
+        let result = await apiService.getRecipes()
+         DispatchQueue.main.async { [weak self] in
+             self?.recipeList = result.data ?? []
+             let count : Int = result.data?.count ?? 0
+             self?.errorMessage = count <= 0 ? "Recipe List Empty!" : nil
+         }
     }
 }

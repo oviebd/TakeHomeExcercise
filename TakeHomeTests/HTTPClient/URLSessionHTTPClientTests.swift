@@ -15,11 +15,12 @@ final class URLSessionHTTPClientTests: XCTestCase {
         let httpClient = makeSUT()
         let url = URL(string: greenImageDataKey)!
         let response = getSuccessResponse(with: url)
-
         MockURLProtocol.stubRequest(response: response, data: Data(), error: nil)
-
+     
+        let exp = expectation(description: "waiting for completion")
         let result = await httpClient.getAPIResponse(from: url)
-        
+        exp.fulfill()
+           await fulfillment(of: [exp], timeout: 1.0)
         switch result {
         case .success (let data):
             XCTAssertNotNil(data)
@@ -35,8 +36,10 @@ final class URLSessionHTTPClientTests: XCTestCase {
         let response = getSuccessResponse(with: url)
 
         MockURLProtocol.stubRequest(response: response, data: Data(), error: error)
-
+        let exp = expectation(description: "waiting for completion")
         let result = await httpClient.getAPIResponse(from: url)
+        exp.fulfill()
+           await fulfillment(of: [exp], timeout: 1.0)
         
         switch result {
         case .success (let data):
@@ -52,10 +55,12 @@ final class URLSessionHTTPClientTests: XCTestCase {
         let httpClient = makeSUT()
         let url = URL(string: greenImageDataKey)!
         let response = getSuccessResponse(with: url)
-
+        let exp = expectation(description: "waiting for completion")
         MockURLProtocol.stubRequest(response: response, data: nil, error: nil)
 
         let result = await httpClient.getAPIResponse(from: url)
+        exp.fulfill()
+        await fulfillment(of: [exp], timeout: 1.0)
         
         switch result {
         case .success(let data):

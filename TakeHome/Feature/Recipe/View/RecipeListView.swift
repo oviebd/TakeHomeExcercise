@@ -29,6 +29,10 @@ struct RecipeListView: View {
                 }
                 
                 Spacer()
+            }.onAppear{
+                Task{
+                    await vm.getRecipes()
+                }
             }
 
             .navigationTitle("Recipe List")

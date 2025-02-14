@@ -10,10 +10,9 @@ import XCTest
 
 final class RecipeApiTests: XCTestCase {
    
-   
-    lazy var api: RecipeAPIService = {
+    lazy var api: MockRecipeAPIService = {
         let httpClient = URLSessionHTTPClient(session: mockSession)
-        return RecipeAPIService(session: mockSession, url: dummyRecipeUrl)
+        return MockRecipeAPIService(session: mockSession, url: dummyRecipeUrl)
     }()
 
     override func tearDown() {
@@ -21,14 +20,18 @@ final class RecipeApiTests: XCTestCase {
         super.tearDown()
     }
 
+    let successResponse = getSuccessResponse(with: dummyRecipeUrl)
+    
     func test_GetRecipes_SuccessWithValidData () async throws {
        
         let mockData = validRecipeListJsonWithSingleRecipe().data(using: .utf8)!
-        let response = getSuccessResponse(with: dummyRecipeUrl)
-     
-        MockURLProtocol.stubRequest(response: response, data: mockData, error: nil)
+        api.stub(response: successResponse, data: mockData, error: nil)
+        let exp = expectation(description: "waiting for completion")
+        
         let result = await api.getRecipes()
-
+        exp.fulfill()
+        await fulfillment(of: [exp], timeout: 1.0)
+        
         XCTAssertEqual(result.data?.count ?? 0, 1)
         XCTAssertEqual(result.data?[0].name, "Bakewell Tart")
     }
@@ -36,35 +39,42 @@ final class RecipeApiTests: XCTestCase {
     func test_GetRecipes_FailedWithError () async throws {
        
         let mockData = validRecipeListJsonWithSingleRecipe().data(using: .utf8)!
-        let response = getSuccessResponse(with: dummyRecipeUrl)
-     
-        MockURLProtocol.stubRequest(response: response, data: mockData, error: error)
+        api.stub(response: successResponse, data: mockData, error: error)
+        let exp = expectation(description: "waiting for completion")
+        
         let result = await api.getRecipes()
-
+        exp.fulfill()
+        await fulfillment(of: [exp], timeout: 1.0)
+        
         XCTAssertNil(result.data)
         XCTAssertNotNil(result.error)
     }
     
     func test_GetRecipes_SuccessWithValidEmptyData () async throws {
+     
         let mockData = validRecipeListJsonWithEmptyList().data(using: .utf8)!
-        let response = getSuccessResponse(with: dummyRecipeUrl)
-        MockURLProtocol.stubRequest(response: response, data: mockData, error: nil)
-
+        api.stub(response: successResponse, data: mockData, error: nil)
+        let exp = expectation(description: "waiting for completion")
+        
         let result = await api.getRecipes()
-
+        exp.fulfill()
+        await fulfillment(of: [exp], timeout: 1.0)
+        
         XCTAssertEqual(result.data?.count ?? 0, 0)
     }
     
     func test_GetRecipes_FailedWithMalformedData () async throws {
         let mockData = malformedRecipeListJsonWithSingleRecipe().data(using: .utf8)!
+        api.stub(response: successResponse, data: mockData, error: nil)
+        let exp = expectation(description: "waiting for completion")
         
-        let response = getSuccessResponse(with: dummyRecipeUrl)
-        MockURLProtocol.stubRequest(response: response, data: mockData, error: nil)
-
         let result = await api.getRecipes()
-
+        exp.fulfill()
+        await fulfillment(of: [exp], timeout: 1.0)
+        
         XCTAssertEqual(result.data?.count ?? 0, 0)
         XCTAssertNotNil(result.error)
-
     }
 }
+
+

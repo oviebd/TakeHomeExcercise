@@ -18,10 +18,14 @@ final class DataCacheServiceTests: XCTestCase {
 
         let (cacheService,downloader) = makeSUT()
         downloader.stubDownloadData(from: URL(string: key)!, data: data, error: nil)
+        let exp = expectation(description: "waiting for completion")
         
         XCTAssertNil(cacheService.dataCache.getData(key: key))
-      
+        
         let result = await cacheService.getData(urlPath: key)
+        exp.fulfill()
+        await fulfillment(of: [exp], timeout: 1.0)
+        
         XCTAssertEqual(result, data)
     }
     
@@ -29,21 +33,27 @@ final class DataCacheServiceTests: XCTestCase {
 
         let (cacheService,downloader) = makeSUT()
         downloader.stubDownloadData(from: URL(string: key)!, data: data, error: error)
+        let exp = expectation(description: "waiting for completion")
         
         XCTAssertNil(cacheService.dataCache.getData(key: key))
       
         let result = await cacheService.getData(urlPath: key)
+        exp.fulfill()
+        await fulfillment(of: [exp], timeout: 1.0)
         XCTAssertNil(result)
     }
     
     func test_GetData_SuccessWhenDataAlreadyCached() async {
         
         let (cacheService,_) = makeSUT()
-    
+        let exp = expectation(description: "waiting for completion")
         cacheService.stubCacheData(data: data, key: key)
       
         let result = await cacheService.getData(urlPath: key)
+        exp.fulfill()
+        await fulfillment(of: [exp], timeout: 1.0)
         XCTAssertEqual(result, data)
+       
     }
     
     //Helpers
