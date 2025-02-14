@@ -15,7 +15,7 @@ I mainly focused on writing test codes. Writing proper test will increase the co
 ### Time Spent: Approximately how long did you spend working on this project? How did you allocate your time?
 
 I spent about 12 hours. Most of the time I spend on writing test cases. 
-Test Cases - 10 hours
+Test Cases - 10 hours, 
 Production Code - 2 hours
 
 ### Trade-offs and Decisions: Did you make any significant trade-offs in your approach?
